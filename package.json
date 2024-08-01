@@ -1,12 +1,12 @@
 {
-  "name": "back",
+  "name": "backen_adiic",
   "version": "1.0.0",
-  "description": "Proyecto ADIIC Dotaciones Institucionales",
+  "description": "Proyecto_BACKEN_ADIIC",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js"
   },
-  "author": "Juan Carlos Arrieta Bustos - Richard Pardo Cardona",
+  "author": "BACKEN_ADIIC",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
