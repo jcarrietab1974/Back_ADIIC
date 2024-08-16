@@ -27,7 +27,7 @@ exports.autenticarUsuario = async (req, res) => {
       payload,
       process.env.SECRETA,
       {
-        expiresIn: '1m', //Un día
+        expiresIn: "30d", //30 dias
       },
       (error, token) => {
         if (error) throw error;
@@ -43,10 +43,8 @@ exports.autenticarUsuario = async (req, res) => {
 exports.usuarioAutenticado = async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.usuario.id);
-    res.json({usuario});
-    
-  } catch(error) {
-    res.status(500).json({msg: "Hubo un error"});  
-    
+    res.json({ usuario });
+  } catch (error) {
+    res.status(500).json({ msg: "Hubo un error" });
   }
-}
+};
