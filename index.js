@@ -9,6 +9,7 @@ const cosr = require("cors");
 const app = express();
 app.use(express.json({ extended: true }));
 conectarDB();
+//Habilitar CORS
 app.use(cosr());
 
 //Rutas
