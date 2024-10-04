@@ -9,6 +9,16 @@ exports.obtenerCategoria = async (req, res) => {
   }
 };
 
+exports.obtenerCategoriaId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const categoria = await Categorias.findById(id);
+    res.json({ categoria });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.crearCategoria = async (req, res) => {
   //req leemos lo que viene de Postman
   //res le escribimos a Postman
@@ -34,9 +44,8 @@ exports.actualizarCategoria = async (req, res) => {
   }
 
   categoria.nombre = req.body.nombre || categoria.nombre;
-
+  categoria.imagen = req.body.imagen || categoria.imagen;
   categoria.save();
-
   res.json({ categoria });
 };
 

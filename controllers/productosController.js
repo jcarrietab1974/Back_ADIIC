@@ -5,7 +5,13 @@ exports.obtenerProducto = async (req, res) => {
 };
 
 exports.crearProducto = async (req, res) => {
-  res.status(404).json({ msg: "Crear producto" });
+  try {
+    const producto = new Productos(req.body);
+    producto.save();
+    res.json(producto);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.actualizarProducto = async (req, res) => {
