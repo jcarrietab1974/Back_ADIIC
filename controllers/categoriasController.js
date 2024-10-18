@@ -1,5 +1,14 @@
 const Categorias = require("../models/Categorias");
 
+exports.obtenerCategoriaHome = async (req, res) => {
+  try {
+    const categoria = await Categorias.find();
+    res.json({ categoria });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.obtenerCategoria = async (req, res) => {
   try {
     const categoria = await Categorias.find({ creador: req.usuario.id });
