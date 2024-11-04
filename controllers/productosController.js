@@ -4,7 +4,6 @@ const Productos = require("../models/Productos");
 exports.obtenerProductosHome = async (req, res) => {
   try {
     const productos  = await Productos.find();
-
     res.json({ productos });
   } catch (error) {
     console.log(error);
@@ -30,9 +29,32 @@ exports.crearProducto = async (req, res) => {
 };
 
 exports.actualizarProducto = async (req, res) => {
-  res.status(404).json({ msg: "Actualizar producto" });
+  //res.status(404).json({ msg: "Actualizar producto" });
+  const { id } = req.params;
+  const producto = await Productos.findById(id);
+
+  if (!producto) {
+    return res.status(400).json({ msg: "Producto no encontrado" });
+  }
+  if (producto.creador.toString() !== req.usuario.id.toString()) {
+    return res.status(400).json({ msg: "Acción no valida para este usuario" });
+  }
+
+  producto.nombre = req.body.nombre || producto.nombre;
+  producto.descripcion = req.body.descripcion || producto.descripcion;
+  producto.stock = req.body.stock || producto.stock;
+  producto.precio = req.body.precio || producto.precio;
+  producto.imagen = req.body.imagen || producto.imagen;
+  producto.save();
+  res.json({ producto });
 };
 
 exports.borrarProducto = async (req, res) => {
-  res.status(404).json({ msg: "Borrar producto" });
+  //res.status(404).json({ msg: "Borrar producto" });
+  try {
+    await Productos.deleteOne({ _id: req.params.id });
+    res.json({ msg: "Producto eliminado" });
+  } catch (error) {
+    console.log(error);
+  }
 };

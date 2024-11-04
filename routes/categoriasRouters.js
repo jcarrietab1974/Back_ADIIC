@@ -11,5 +11,7 @@ router.post("/", authMidd, categoriasController.crearCategoria);
 router.put("/:id", authMidd, categoriasController.actualizarCategoria);
 router.delete("/:id", authMidd, categoriasController.borrarCategoria);
 
+
+
 //Definir las rutas
 module.exports = router;

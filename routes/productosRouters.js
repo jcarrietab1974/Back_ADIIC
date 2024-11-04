@@ -9,5 +9,6 @@ router.post("/", authMidd, productosController.crearProducto);
 router.put("/:id", authMidd, productosController.actualizarProducto);
 router.delete("/:id", authMidd, productosController.borrarProducto);
 
+
 //Definir las rutas
 module.exports = router;
