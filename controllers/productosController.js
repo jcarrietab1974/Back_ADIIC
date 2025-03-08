@@ -1,9 +1,13 @@
 const Productos = require("../models/Productos");
 
-// Consulta que nos permite realizar el filtro en la base de datos
+// Obtener todos los productos
 exports.obtenerProductosHome = async (req, res) => {
   try {
-    const productos = await Productos.find();
+    const productos = await Productos.find()
+      .populate("categoriaId", "nombre") // Obtener nombre de la categoría
+      .select("-__v") // Excluir campo `__v`
+      .sort({ creado: -1 }); // Ordenar por fecha de creación
+
     res.json({ productos });
   } catch (error) {
     console.error(error);
@@ -11,11 +15,16 @@ exports.obtenerProductosHome = async (req, res) => {
   }
 };
 
-// Consulta que nos permite realizar el filtro en la base de datos
+// Obtener productos por ID de categoría
 exports.obtenerListaDeProductosPorCategoriaId = async (req, res) => {
   const { id } = req.params;
   try {
-    const productos = await Productos.find().where("categoriaId").equals(id);
+    const productos = await Productos.find({ categoriaId: id })
+      .populate("categoriaId", "nombre")
+      .select(
+        "referencia nombre descripcion stock talla color precio imagen creado"
+      );
+
     res.json(productos);
   } catch (error) {
     console.error(error);
@@ -23,28 +32,67 @@ exports.obtenerListaDeProductosPorCategoriaId = async (req, res) => {
   }
 };
 
-//----
+// Obtener producto por su ID
 exports.obtenerProductoPorProductoId = async (req, res) => {
   const { id } = req.params;
   try {
-    const productos = await Productos.find().where("_id").equals(id);
-    res.json(productos);
+    const producto = await Productos.findById(id).populate(
+      "categoriaId",
+      "nombre"
+    );
+
+    if (!producto) {
+      return res.status(404).json({ msg: "Producto no encontrado" });
+    }
+
+    res.json(producto);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error al obtener productos por categoría" });
+    res.status(500).json({ msg: "Error al obtener el producto" });
   }
 };
 
+// Crear un nuevo producto
 exports.crearProducto = async (req, res) => {
-  const { nombre, descripcion, stock, precio, imagen, categoriaId } = req.body;
+  const {
+    referencia,
+    nombre,
+    descripcion,
+    stock,
+    talla,
+    color,
+    precio,
+    imagen,
+    categoriaId,
+  } = req.body;
 
-  // Validación de datos
-  if (!nombre || !descripcion || !stock || !precio || !imagen || !categoriaId) {
+  if (
+    !referencia ||
+    !nombre ||
+    !descripcion ||
+    !stock ||
+    !talla ||
+    !color ||
+    !precio ||
+    !imagen ||
+    !categoriaId
+  ) {
     return res.status(400).json({ msg: "Todos los campos son obligatorios" });
   }
 
   try {
-    const producto = new Productos(req.body);
+    const producto = new Productos({
+      referencia,
+      nombre,
+      descripcion,
+      stock,
+      talla,
+      color,
+      precio,
+      imagen,
+      categoriaId,
+    });
+
     await producto.save();
     res.status(201).json(producto);
   } catch (error) {
@@ -53,44 +101,46 @@ exports.crearProducto = async (req, res) => {
   }
 };
 
+// Actualizar un producto por su ID
 exports.actualizarProducto = async (req, res) => {
   const { id } = req.params;
-  const { categoriaId } = req.body; // Obtener el ID de la categoría del cuerpo de la solicitud
+  const { categoriaId } = req.body;
 
   try {
-    const producto = await Productos.findById(id);
-
+    let producto = await Productos.findById(id);
     if (!producto) {
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
 
-    // Validar que el ID de la categoría coincida
+    // Validar que el ID de la categoría sea correcto
     if (categoriaId && categoriaId !== producto.categoriaId.toString()) {
       return res.status(400).json({ msg: "El ID de la categoría no coincide" });
     }
 
-    // Actualizar los campos del producto
-    producto.nombre = req.body.nombre || producto.nombre;
-    producto.descripcion = req.body.descripcion || producto.descripcion;
-    producto.stock = req.body.stock || producto.stock;
-    producto.precio = req.body.precio || producto.precio;
-    producto.imagen = req.body.imagen || producto.imagen;
+    // Actualizar los campos permitidos
+    producto = await Productos.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      { new: true } // Retorna el producto actualizado
+    );
 
-    await producto.save(); // Esperar a que se guarde el producto actualizado
-    res.json({ producto });
+    res.json(producto);
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al actualizar el producto" });
   }
 };
 
+// Eliminar un producto por su ID
 exports.borrarProducto = async (req, res) => {
   try {
-    const resultado = await Productos.deleteOne({ _id: req.params.id });
-    if (resultado.deletedCount === 0) {
+    const producto = await Productos.findByIdAndDelete(req.params.id);
+
+    if (!producto) {
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
-    res.json({ msg: "Producto eliminado" });
+
+    res.json({ msg: "Producto eliminado correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al eliminar el producto" });
