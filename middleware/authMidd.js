@@ -16,6 +16,6 @@ module.exports = function (req, res, next) {
     // console.log(cifrado.usuario);
     next();
   } catch (error) {
-    res.status(400).json({ msg: "Toquen no valido" });
+    res.status(400).json({ msg: "Token no valido" });
   }
 };
