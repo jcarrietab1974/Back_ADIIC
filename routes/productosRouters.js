@@ -4,9 +4,6 @@ const authMidd = require("../middleware/authMidd");
 const productosController = require("../controllers/productosController");
 
 router.get("/", productosController.obtenerProductosHome);
-//---
-//router.get("/", authMidd, productosController.obtenerProducto);
-//---
 router.get("/:id", authMidd, productosController.obtenerProductoPorProductoId);
 router.get(
   "/porcategoria/:id",
