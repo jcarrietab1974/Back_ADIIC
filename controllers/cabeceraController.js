@@ -33,19 +33,30 @@ exports.listarCabeceraPersonalizado = async (req, res) => {
 };
 
 /// Crear una nueva cabecera
+// Crear una nueva cabecera validando NIT único
 exports.crearCabecera = async (req, res) => {
   try {
+    const { nit } = req.body;
+
+    // Validar si el NIT ya existe
+    const existeCabecera = await Cabecera.findOne({ nit });
+    if (existeCabecera) {
+      return res
+        .status(400)
+        .json({ msg: "El NIT ingresado ya está en uso en otra cabecera." });
+    }
+
     // Crear la cabecera con los datos recibidos y el usuario autenticado
     const cabecera = new Cabecera({
-      ...req.body, // Mantiene los datos del request
-      creador: req.usuario.id, // Asigna el usuario autenticado
+      ...req.body,
+      creador: req.usuario.id,
     });
 
     await cabecera.save();
     res.status(201).json({ msg: "Cabecera creada correctamente", cabecera });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ msg: "Error al crear la cabecera" });
+    res.status(500).json({ msg: "Error interno al crear la cabecera" });
   }
 };
 
@@ -53,16 +64,42 @@ exports.crearCabecera = async (req, res) => {
 exports.actualizarCabecera = async (req, res) => {
   try {
     const { id } = req.params;
-    const cabecera = await Cabecera.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const { local, nit, direccion, telefono, email } = req.body;
 
-    if (!cabecera) {
-      return res.status(404).json({ msg: "Cabecera no encontrada" });
+    // Verificar campos obligatorios
+    if (!local || !nit || !direccion || !telefono || !email) {
+      return res
+        .status(400)
+        .json({ msg: "Todos los campos son obligatorios." });
     }
 
-    res.status(200).json({ msg: "Cabecera actualizada correctamente" });
+    // Verificar que el NIT no esté en uso por otra cabecera
+    const nitExistente = await Cabecera.findOne({ nit, _id: { $ne: id } });
+    if (nitExistente) {
+      return res
+        .status(400)
+        .json({ msg: "El NIT ingresado ya pertenece a otra cabecera." });
+    }
+
+    // Actualizar la cabecera
+    const cabeceraActualizada = await Cabecera.findByIdAndUpdate(
+      id,
+      { local, nit, direccion, telefono, email },
+      { new: true }
+    );
+
+    if (!cabeceraActualizada) {
+      return res.status(404).json({ msg: "Cabecera no encontrada." });
+    }
+
+    res
+      .status(200)
+      .json({
+        msg: "Cabecera actualizada correctamente",
+        cabecera: cabeceraActualizada,
+      });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ msg: "Error al actualizar la cabecera" });
   }
 };

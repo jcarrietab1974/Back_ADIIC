@@ -25,6 +25,11 @@ const CuerpoFacturaSchema = mongoose.Schema(
       default: 0,
       min: 0,
     },
+    iva: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     subtotal: {
       type: mongoose.Decimal128,
       required: true,
