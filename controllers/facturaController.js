@@ -74,8 +74,8 @@ exports.ingresarFactura = async (req, res) => {
         cantidadProducto: p.cantidad,
         precioProducto: producto.precio,
         descuentoProducto: p.descuento || 0,
+        iva: p.iva || 0, // ✔ coincide con el campo `iva` del schema
         subtotal: p.subtotal,
-        ivaProducto: p.iva,
         total: p.total,
       }).save();
 
