@@ -4,7 +4,7 @@
   "description": "Proyecto_BACKEN_ADIIC",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "node index.js"
   },
   "author": "BACKEN_ADIIC",
   "license": "ISC",
